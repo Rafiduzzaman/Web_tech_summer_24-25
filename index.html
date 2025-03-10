@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="container">
+        <h2>Registration Form</h2>
+        <table>
+            <tr>
+                <th colspan="2">Personal Information</th>
+            </tr>
+            <tr>
+                <td>Full Name:</td>
+                <td><input type="text" name="fullname" required></td>
+            </tr>
+            <tr>
+                <td>Email:</td>
+                <td><input type="email" name="email" required></td>
+            </tr>
+            <tr>
+                <td>Password:</td>
+                <td><input type="password" name="password" required></td>
+            </tr>
+            <tr>
+                <th colspan="2">Address Details</th>
+            </tr>
+            <tr>
+                <td rowspan="2">Address:</td>
+                <td><input type="text" name="street" placeholder="Street Address" required></td>
+            </tr>
+            <tr>
+                <td><input type="text" name="city" placeholder="City" required></td>
+            </tr>
+            <tr>
+                <td>Country:</td>
+                <td>
+                    <select name="country" required>
+                        <option value="">Select Country</option>
+                        <option value="USA">USA</option>
+                        <option value="UK">UK</option>
+                        <option value="Canada">Canada</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="submit-row">
+                    <button type="submit">Register</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+</body>
+</html>
