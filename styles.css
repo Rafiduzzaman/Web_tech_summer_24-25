@@ -1,59 +1,156 @@
-body {
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
     font-family: Arial, sans-serif;
+}
+
+body {
     background-color: #f4f4f4;
-    text-align: center;
+    line-height: 1.6;
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    color: white;
+    padding: 15px 20px;
+}
+
+.logo {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.search-bar input {
+    padding: 8px;
+    width: 250px;
+    border: none;
+    border-radius: 4px;
 }
 
 .container {
-    width: 50%;
-    margin: 20px auto;
-    background: white;
+    margin-top: 60px; /* Match the navbar height */
+    display: flex;
+}
+.sidebar {
+    width: 250px;
+    background-color: #2c3e50;
+    height: 100vh;
     padding: 20px;
+    position: fixed;
+    left: 0;
+    top: 60px; /* Adjust this value to match navbar height */
+    margin-top: 0;
+    z-index: 999;
+    overflow-y: auto; /* Add scrolling if content exceeds height */
+}
+
+.sidebar-menu {
+    list-style-type: none;
+}
+
+.sidebar-menu li {
+    margin-bottom: 15px;
+}
+
+.sidebar-menu a {
+    text-decoration: none;
+    color: #ecf0f1;
+    font-size: 1em;
+    transition: color 0.3s ease;
+}
+
+.sidebar-menu a:hover {
+    color: #3498db;
+}
+
+.main-content {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    padding: 20px;
+    padding-top: 80px; /* Add extra padding to prevent content from being hidden behind navbar */
+}
+
+.main {
+    background-color: white;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 h2 {
-    margin-bottom: 15px;
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
 }
 
 table {
     width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
+    border-collapse: separate;
+    border-spacing: 0 10px;
 }
 
 th {
-    background-color: #007bff;
+    background-color: #3498db;
     color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+td {
+    padding: 8px;
 }
 
 input, select {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     margin: 5px 0;
-    border: 1px solid #ccc;
+    border: 1px solid #ddd;
     border-radius: 4px;
-}
-
-button {
-    background-color: #28a745;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-button:hover {
-    background-color: #218838;
 }
 
 .submit-row {
     text-align: center;
+}
+
+button {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #27ae60;
+}
+
+@media screen and (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        margin-top: 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
 }
