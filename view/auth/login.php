@@ -1,3 +1,11 @@
+<?php
+if (isset($_GET['page']) && $_GET['page'] === 'register') {
+    header('Location: controller/AuthController.php?page=register');
+    exit;
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,7 +46,7 @@
         <div class="alert alert-danger"> <?= $error ?> </div>
       <?php endif; ?>
 
-      <form action="/login" method="POST">
+      <form action="?page=login" method="POST">
         <div class="mb-3">
           <label for="email" class="form-label">Email address</label>
           <input type="email" class="form-control" id="email" name="email" required>

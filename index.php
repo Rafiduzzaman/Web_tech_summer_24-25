@@ -1,8 +1,37 @@
 <?php
-if (isset($_GET['page']) && $_GET['page'] === 'login') {
-    header('Location: controller/AuthController.php?page=login');
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+define('BASE_URL', '/Web_tech_spring_24-25/');
+define('BASE_PATH', __DIR__ . '/');
+
+$publicPages = ['login', 'register'];
+
+$page = $_GET['page'] ?? 'login';
+
+if (!isset($_SESSION['user']) && !in_array($page, $publicPages)) {
+    header('Location: ' . BASE_URL . '?page=login');
     exit;
 }
+
+
+switch ($page) {
+    case 'login':
+    case 'register':
+        require BASE_PATH . 'controller/AuthController.php';
+        break;
+        
+    case 'dashboard':
+        require BASE_PATH . 'view/dashboard.php';
+        break;
+        
+    default:
+        http_response_code(404);
+        require BASE_PATH . 'view/errors/404.php';
+        exit;
+}
+exit;
 ?>
 
 <!DOCTYPE html>
