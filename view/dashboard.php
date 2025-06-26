@@ -215,7 +215,7 @@
                         <span class="notification-badge"><?php echo $unreadCount; ?></span>
                     <?php endif; ?>
                 </a>
-                <a href="/profile" class="btn btn-outline">Profile</a>
+                <a href="?page=profile" class="btn btn-outline">Profile</a>
                 <a href="/logout" class="btn">Logout</a>
             </div>
         </div>
@@ -253,7 +253,7 @@
             <div class="widget">
                 <h2>Quick Actions</h2>
                 <div class="quick-actions">
-                    <a href="/tasks/create" class="btn">
+                    <a href="view/tasks/details.php?new=1" class="btn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>

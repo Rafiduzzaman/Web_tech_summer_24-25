@@ -25,7 +25,23 @@ switch ($page) {
     case 'dashboard':
         require BASE_PATH . 'view/dashboard.php';
         break;
-        
+    case 'profile': // ← Add this case
+        require BASE_PATH . 'controller/ProfileController.php';
+        ProfileController::show();
+        break;
+        case 'profile-update':
+    require BASE_PATH . 'controller/ProfileController.php';
+    ProfileController::update();
+    break;
+    
+case 'profile-change-password':
+    require BASE_PATH . 'controller/ProfileController.php';
+    ProfileController::changePassword();
+    break;
+    case 'update-avatar':
+    require BASE_PATH . 'controller/ProfileController.php';
+    ProfileController::updateAvatar();
+    break;
     default:
         http_response_code(404);
         require BASE_PATH . 'view/errors/404.php';

@@ -80,11 +80,44 @@
 </head>
 <body>
     <div class="profile-header">
-        <img src="/assets/default-avatar.jpg" alt="Profile Picture" class="avatar" id="avatar-preview">
-        <h1><?php echo htmlspecialchars($user['name'] ?? 'User Profile'); ?></h1>
+    <img src="<?= BASE_URL ?>assets/uploads/avatars/<?= htmlspecialchars($user['avatar'] ?? 'default-avatar.jpg') ?>" 
+         alt="Profile Picture" 
+         class="avatar" 
+         id="avatar-preview">
+    <div>
+        <h1><?= htmlspecialchars($user['name'] ?? 'User Profile') ?></h1>
+        <form action="?page=update-avatar" method="POST" enctype="multipart/form-data" id="avatar-form">
+            <input type="file" id="avatar-input" name="avatar" accept="image/*" style="display: none;">
+            <button type="button" onclick="document.getElementById('avatar-input').click()">Change Avatar</button>
+            <div id="avatar-actions" style="display: none;">
+                <button type="submit">Save</button>
+                <button type="button" onclick="cancelAvatarChange()">Cancel</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <div class="tab-container">
+<script>
+document.getElementById('avatar-input').addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('avatar-preview').src = e.target.result;
+            document.getElementById('avatar-actions').style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+function cancelAvatarChange() {
+    document.getElementById('avatar-form').reset();
+    document.getElementById('avatar-actions').style.display = 'none';
+    // Reset to original avatar
+    document.getElementById('avatar-preview').src = "<?= BASE_URL ?>assets/uploads/avatars/<?= htmlspecialchars($user['avatar'] ?? 'default-avatar.jpg') ?>";
+}
+</script>
+<div class="tab-container">
         <div class="tab active" onclick="switchTab('view')">View Profile</div>
         <div class="tab" onclick="switchTab('edit')">Edit Profile</div>
         <div class="tab" onclick="switchTab('password')">Change Password</div>
@@ -104,7 +137,7 @@
     <div class="tab-content" id="edit-tab">
         <div class="section">
             <h2>Edit Profile</h2>
-            <form action="/profile/update" method="POST" enctype="multipart/form-data">
+            <form action="?page=profile-update" method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="name">Full Name</label>
                     <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user['name'] ?? ''); ?>">
@@ -126,7 +159,7 @@
     <div class="tab-content" id="password-tab">
         <div class="section">
             <h2>Change Password</h2>
-            <form action="/profile/change-password" method="POST">
+            <form action="?page=profile-change-password" method="POST">
                 <div class="form-group">
                     <label for="current_password">Current Password</label>
                     <input type="password" id="current_password" name="current_password" required>

@@ -94,4 +94,29 @@ public function verifyCredentials($email, $password) {
     
     return false;
 }
+// Add to your existing User class
+public function updateAvatar($userId, $avatarPath) {
+    $stmt = $this->db->prepare("UPDATE users SET avatar = ? WHERE id = ?");
+    $stmt->bind_param("si", $avatarPath, $userId);
+    return $stmt->execute();
+}
+
+public function getAvatar($userId) {
+    $stmt = $this->db->prepare("SELECT avatar FROM users WHERE id = ?");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_assoc()['avatar'];
+}
+public function getUserById($userId) {
+    $stmt = $this->db->prepare("SELECT id, name, email, avatar, created_at FROM users WHERE id = ?");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 1) {
+        return $result->fetch_assoc();
+    }
+    return false;
+}
 }
