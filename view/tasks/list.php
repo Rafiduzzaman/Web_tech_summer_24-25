@@ -56,13 +56,33 @@
         }
         .task-actions {
             margin-left: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: white;
+        }
+        .status-pending { background: #6c757d; }
+        .status-in_progress { background: #17a2b8; }
+        .status-completed { background: #28a745; }
+        .btn {
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
         }
     </style>
 </head>
 <body>
     <div class="task-header">
         <h1>My Tasks</h1>
-        <a href="/tasks/create" class="btn">+ New Task</a>
+        <a href="?page=create-task" class="btn">+ New Task</a>
     </div>
 
     <div class="task-filters">
@@ -72,52 +92,60 @@
             <option value="medium">Medium</option>
             <option value="low">Low</option>
         </select>
-        <select id="filterCategory">
-            <option value="">All Categories</option>
-            <option value="work">Work</option>
-            <option value="personal">Personal</option>
+        <select id="filterStatus">
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
         </select>
         <input type="text" id="searchTasks" placeholder="Search tasks...">
     </div>
 
     <div class="task-list">
         <?php foreach ($tasks as $task): ?>
-        <div class="task-item">
-            <input type="checkbox" class="task-checkbox" <?php echo $task['completed'] ? 'checked' : ''; ?>>
-            <div class="task-priority priority-<?php echo $task['priority']; ?>"></div>
-            <div class="task-content">
-                <strong><?php echo htmlspecialchars($task['title']); ?></strong>
+        <div class="task-item" data-priority="<?= $task['priority'] ?>" data-status="<?= $task['status'] ?>">
+            <div class="task-priority priority-<?= $task['priority'] ?>"></div>
+            <div class="task-content" style="flex-grow: 1;">
+                <strong><?= htmlspecialchars($task['title']) ?></strong>
                 <?php if (!empty($task['description'])): ?>
-                <p><?php echo htmlspecialchars($task['description']); ?></p>
+                <p><?= htmlspecialchars($task['description']) ?></p>
                 <?php endif; ?>
             </div>
             <div class="task-due">
-                Due: <?php echo date('M d', strtotime($task['due_date'])); ?>
+                Due: <?= date('M d, Y', strtotime($task['due_date'])) ?>
+            </div>
+            <div class="status-badge status-<?= $task['status'] ?>">
+                <?= ucfirst(str_replace('_', ' ', $task['status'])) ?>
             </div>
             <div class="task-actions">
-                <a href="/tasks/<?php echo $task['id']; ?>/edit">Edit</a>
+                <a href="?page=edit-task&id=<?= $task['task_id'] ?>" class="btn" style="background: #ffc107;">Edit</a>
+                <a href="?page=delete-task&id=<?= $task['task_id'] ?>" class="btn" style="background: #dc3545;">Delete</a>
             </div>
         </div>
         <?php endforeach; ?>
     </div>
 
     <script>
-        // Simple client-side filtering
+        // Enhanced client-side filtering
         document.getElementById('filterPriority').addEventListener('change', filterTasks);
-        document.getElementById('filterCategory').addEventListener('change', filterTasks);
+        document.getElementById('filterStatus').addEventListener('change', filterTasks);
         document.getElementById('searchTasks').addEventListener('input', filterTasks);
 
         function filterTasks() {
             const priority = document.getElementById('filterPriority').value;
-            const category = document.getElementById('filterCategory').value;
+            const status = document.getElementById('filterStatus').value;
             const search = document.getElementById('searchTasks').value.toLowerCase();
 
             document.querySelectorAll('.task-item').forEach(task => {
-                const taskPriority = task.querySelector('.task-priority').className.includes(priority);
+                const taskPriority = task.dataset.priority;
+                const taskStatus = task.dataset.status;
                 const taskText = task.textContent.toLowerCase();
-                const show = (priority === '' || taskPriority) && 
-                             taskText.includes(search);
-                task.style.display = show ? '' : 'none';
+                
+                const priorityMatch = priority === '' || taskPriority === priority;
+                const statusMatch = status === '' || taskStatus === status;
+                const searchMatch = taskText.includes(search);
+                
+                task.style.display = (priorityMatch && statusMatch && searchMatch) ? '' : 'none';
             });
         }
     </script>

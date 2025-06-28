@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors = [];
         if (empty($name)) $errors[] = 'Full name is required';
         if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Valid email is required';
-        if (empty($password) || strlen($password) < 8) $errors[] = 'Password must be at least 8 characters';
+        if (empty($password) || strlen($password) < 4) $errors[] = 'Password must be at least 4 characters';
         
         if (empty($errors)) {
             $user = new User();
