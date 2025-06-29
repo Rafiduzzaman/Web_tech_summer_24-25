@@ -81,7 +81,10 @@
 </head>
 <body>
     <div class="task-header">
-        <h1>My Tasks</h1>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <a href="<?= BASE_URL ?>?page=dashboard" class="btn" style="background: #6c757d;">← Dashboard</a>
+            <h1>My Tasks</h1>
+        </div>
         <a href="?page=create-task" class="btn">+ New Task</a>
     </div>
 

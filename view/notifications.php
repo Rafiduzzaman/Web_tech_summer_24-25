@@ -1,148 +1,216 @@
+<?php
+if (!isset($_SESSION['user'])) {
+    header('Location: ' . BASE_URL . '?page=login');
+    exit();
+}
+
+require_once BASE_PATH . 'model/Notification.php';
+$notificationModel = new Notification();
+$notifications = $notificationModel->getAll($_SESSION['user']['id']);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notifications | Your App</title>
+    <title>Notifications - TaskMaster</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
+            background-color: #f5f7fa;
+        }
+        .notification-container {
+            max-width: 800px;
+            margin: 40px auto;
             padding: 20px;
-            background-color: #f8f9fa;
+        }
+        .notification-item {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+        .notification-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .notification-item.unread {
+            border-left-color: #007bff;
+            background-color: #f8f9ff;
+        }
+        .notification-item.info {
+            border-left-color: #17a2b8;
+        }
+        .notification-item.success {
+            border-left-color: #28a745;
+        }
+        .notification-item.warning {
+            border-left-color: #ffc107;
+        }
+        .notification-item.error {
+            border-left-color: #dc3545;
         }
         .notification-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #ddd;
-        }
-        .notification-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .notification-tabs button {
-            padding: 8px 15px;
-            background: #e9ecef;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .notification-tabs button.active {
-            background: #4285f4;
-            color: white;
-        }
-        .notification-list {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .notification-item {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            display: flex;
             align-items: flex-start;
+            margin-bottom: 10px;
         }
-        .notification-item.unread {
-            background-color: #f0f7ff;
-        }
-        .notification-icon {
-            margin-right: 15px;
-            font-size: 20px;
-            color: #4285f4;
-        }
-        .notification-content {
-            flex: 1;
+        .notification-title {
+            font-weight: 600;
+            margin: 0;
+            color: #333;
         }
         .notification-time {
+            font-size: 0.875rem;
             color: #6c757d;
-            font-size: 12px;
-            margin-top: 5px;
+        }
+        .notification-message {
+            color: #666;
+            margin: 0;
+            line-height: 1.5;
         }
         .notification-actions {
-            margin-left: 15px;
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
         }
-        .mark-all-read {
-            text-align: right;
-            margin-bottom: 15px;
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
         }
     </style>
 </head>
 <body>
-    <div class="notification-header">
-        <h1>Notifications</h1>
-        <a href="/dashboard" class="btn">Back to Dashboard</a>
-    </div>
-
-    <div class="notification-tabs">
-        <button class="active" onclick="filterNotifications('all')">All</button>
-        <button onclick="filterNotifications('unread')">Unread</button>
-        <button onclick="filterNotifications('system')">System</button>
-        <button onclick="filterNotifications('alerts')">Alerts</button>
-    </div>
-
-    <div class="mark-all-read">
-        <button onclick="markAllAsRead()">Mark All as Read</button>
-    </div>
-
-    <div class="notification-list" id="notificationList">
-        <?php foreach ($notifications as $notification): ?>
-        <div class="notification-item <?php echo !$notification['is_read'] ? 'unread' : ''; ?>">
-            <div class="notification-icon">
-                <?php echo getNotificationIcon($notification['type']); ?>
-            </div>
-            <div class="notification-content">
-                <p><?php echo htmlspecialchars($notification['message']); ?></p>
-                <div class="notification-time">
-                    <?php echo timeAgo($notification['created_at']); ?>
+    <div class="container">
+        <div class="notification-container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-bell me-2"></i>Notifications</h2>
+                <div>
+                    <button class="btn btn-outline-primary btn-sm" onclick="markAllAsRead()">
+                        <i class="fas fa-check-double me-1"></i>Mark All as Read
+                    </button>
+                    <a href="<?= BASE_URL ?>?page=dashboard" class="btn btn-outline-secondary btn-sm ms-2">
+                        <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                    </a>
                 </div>
             </div>
-            <div class="notification-actions">
-                <?php if (!$notification['is_read']): ?>
-                    <button onclick="markAsRead(<?php echo $notification['id']; ?>)">Mark Read</button>
-                <?php endif; ?>
-            </div>
+
+            <?php if (empty($notifications)): ?>
+                <div class="empty-state">
+                    <i class="fas fa-bell-slash"></i>
+                    <h4>No notifications yet</h4>
+                    <p>You're all caught up! New notifications will appear here.</p>
+                </div>
+            <?php else: ?>
+                <div class="notifications-list">
+                    <?php foreach ($notifications as $notification): ?>
+                        <div class="notification-item <?= $notification['is_read'] ? '' : 'unread' ?> <?= $notification['type'] ?>" 
+                             data-id="<?= $notification['id'] ?>">
+                            <div class="notification-header">
+                                <h6 class="notification-title"><?= htmlspecialchars($notification['title']) ?></h6>
+                                <span class="notification-time">
+                                    <?= date('M d, Y g:i A', strtotime($notification['created_at'])) ?>
+                                </span>
+                            </div>
+                            <p class="notification-message"><?= htmlspecialchars($notification['message']) ?></p>
+                            <div class="notification-actions">
+                                <?php if (!$notification['is_read']): ?>
+                                    <button class="btn btn-primary btn-sm" onclick="markAsRead(<?= $notification['id'] ?>)">
+                                        <i class="fas fa-check me-1"></i>Mark as Read
+                                    </button>
+                                <?php endif; ?>
+                                <button class="btn btn-outline-danger btn-sm" onclick="deleteNotification(<?= $notification['id'] ?>)">
+                                    <i class="fas fa-trash me-1"></i>Delete
+                                </button>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
         </div>
-        <?php endforeach; ?>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function filterNotifications(type) {
-            // Update active tab
-            document.querySelectorAll('.notification-tabs button').forEach(btn => {
-                btn.classList.toggle('active', btn.textContent.toLowerCase() === type);
-            });
-
-            // Filter notifications (simplified client-side filtering)
-            document.querySelectorAll('.notification-item').forEach(item => {
-                const show = type === 'all' || 
-                             (type === 'unread' && item.classList.contains('unread')) ||
-                             (type === item.dataset.type);
-                item.style.display = show ? '' : 'none';
-            });
-        }
-
         function markAsRead(notificationId) {
-            // AJAX call to mark notification as read
-            console.log(`Marking notification ${notificationId} as read`);
-            // Update UI immediately
-            const item = document.querySelector(`[data-id="${notificationId}"]`);
-            if (item) {
-                item.classList.remove('unread');
-                item.querySelector('.notification-actions').innerHTML = '';
-            }
+            fetch('<?= BASE_URL ?>?page=mark-notification-read', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'notification_id=' + notificationId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to mark notification as read');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
         }
 
         function markAllAsRead() {
-            // AJAX call to mark all as read
-            console.log('Marking all notifications as read');
-            // Update UI immediately
-            document.querySelectorAll('.notification-item').forEach(item => {
-                item.classList.remove('unread');
-                item.querySelector('.notification-actions').innerHTML = '';
+            if (!confirm('Mark all notifications as read?')) return;
+            
+            fetch('<?= BASE_URL ?>?page=mark-all-notifications-read', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to mark all notifications as read');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
+
+        function deleteNotification(notificationId) {
+            if (!confirm('Delete this notification?')) return;
+            
+            fetch('<?= BASE_URL ?>?page=delete-notification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'notification_id=' + notificationId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to delete notification');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
             });
         }
     </script>

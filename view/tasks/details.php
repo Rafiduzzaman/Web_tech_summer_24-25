@@ -98,138 +98,302 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $isEditMode && !empty($task['title']) ? htmlspecialchars($task['title']) : 'New Task' ?> | Task Manager</title>
+    <title>Task Details - TaskMaster</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary: #4361ee; --primary-light: #e0e7ff;
-            --danger: #f72585; --warning: #f8961e; --success: #4cc9f0;
-            --gray: #6c757d; --light-gray: #f8f9fa; --dark: #212529;
+        body {
+            background-color: #f5f7fa;
         }
-        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; margin: 0; }
-        .container { max-width: 800px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--light-gray); }
-        .priority { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
-        .high { background: var(--danger); color: white; } 
-        .medium { background: var(--warning); color: white; } 
-        .low { background: var(--success); color: white; }
-        .task-description { background: var(--light-gray); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; }
-        .error-message {
-            color: var(--danger);
-            background-color: #fee;
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 1.5rem;
+        .task-details-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-        /* Priority Selector */
-        .priority-selector { position: relative; }
-        .priority-display { cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
-        .priority-options { display: none; position: absolute; right: 0; top: 100%; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10; min-width: 120px; }
-        .priority-selector.active .priority-options { display: block; }
-        .priority-option { padding: 0.5rem 1rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
-        .priority-option:hover { background: #f5f7fa; }
-        .priority-option::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
-        .priority-option.high::before { background: var(--danger); }
-        .priority-option.medium::before { background: var(--warning); }
-        .priority-option.low::before { background: var(--success); }
-        .form-group { margin-bottom: 1.5rem; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
-        input[type="text"], textarea, select, input[type="date"] {
-            width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px;
-            font-family: inherit; font-size: inherit;
+        .task-header {
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
         }
-        textarea { min-height: 120px; resize: vertical; }
-        .btn { 
-            padding: 0.75rem 1.5rem; border: none; border-radius: 6px; 
-            cursor: pointer; font-weight: 600; font-size: 1rem;
-            transition: background-color 0.2s ease;
+        .priority-badge {
+            font-size: 0.875rem;
+            padding: 0.375rem 0.75rem;
         }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: #3a56d4; }
-        .btn-secondary { background: var(--gray); color: white; margin-right: 1rem; }
-        .btn-secondary:hover { background: #5a6268; }
-        .form-actions { margin-top: 2rem; display: flex; justify-content: flex-end; }
-        @media (max-width: 768px) {
-            .task-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
-            .priority-selector { align-self: flex-end; }
+        .priority-high { background-color: #dc3545; color: white; }
+        .priority-medium { background-color: #fd7e14; color: white; }
+        .priority-low { background-color: #28a745; color: white; }
+        .status-badge {
+            font-size: 0.875rem;
+            padding: 0.375rem 0.75rem;
+        }
+        .status-pending { background-color: #6c757d; color: white; }
+        .status-in_progress { background-color: #17a2b8; color: white; }
+        .status-completed { background-color: #28a745; color: white; }
+        .subtask-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 3px solid #dee2e6;
+        }
+        .subtask-item.completed {
+            background-color: #d4edda;
+            border-left-color: #28a745;
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
+            background-color: #e3f2fd;
+            border-radius: 5px;
+        }
+        .shared-user {
+            display: inline-block;
+            background-color: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 15px;
+            margin: 2px;
+            font-size: 0.875rem;
+        }
+        .task-meta {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .task-actions {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <?php if ($error): ?>
-            <div class="error-message"><?= htmlspecialchars($error) ?></div>
-        <?php endif; ?>
-        
-        <form method="POST">
+        <div class="task-details-container">
+            <!-- Task Header -->
             <div class="task-header">
-                <div class="form-group" style="flex-grow: 1;">
-                    <label for="title">Task Title</label>
-                    <input type="text" id="title" name="title" value="<?= htmlspecialchars($task['title']) ?>" required>
-                </div>
-                
-                <div class="priority-selector" id="prioritySelector">
-                    <label>Priority</label>
-                    <div class="priority-display" onclick="togglePriorityOptions()">
-                        <span class="priority <?= $task['priority'] ?>"><?= ucfirst($task['priority']) ?></span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h2><?= htmlspecialchars($task['title']) ?></h2>
+                        <div class="d-flex gap-2 align-items-center">
+                            <span class="priority-badge priority-<?= $task['priority'] ?>">
+                                <i class="fas fa-flag me-1"></i><?= ucfirst($task['priority']) ?> Priority
+                            </span>
+                            <span class="status-badge status-<?= $task['status'] ?>">
+                                <?= ucfirst(str_replace('_', ' ', $task['status'])) ?>
+                            </span>
+                            <?php if ($task['category'] && $task['category'] !== 'General'): ?>
+                                <span class="badge bg-secondary"><?= htmlspecialchars($task['category']) ?></span>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                    <div class="priority-options" id="priorityOptions">
-                        <div class="priority-option high <?= $task['priority'] === 'high' ? 'selected' : '' ?>" onclick="setPriority('high')">High</div>
-                        <div class="priority-option medium <?= $task['priority'] === 'medium' ? 'selected' : '' ?>" onclick="setPriority('medium')">Medium</div>
-                        <div class="priority-option low <?= $task['priority'] === 'low' ? 'selected' : '' ?>" onclick="setPriority('low')">Low</div>
+                    <div class="d-flex gap-2">
+                        <a href="<?= BASE_URL ?>?page=edit-task&id=<?= $task['task_id'] ?>" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </a>
+                        <a href="<?= BASE_URL ?>?page=tasks" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back
+                        </a>
                     </div>
-                    <input type="hidden" name="priority" id="priorityInput" value="<?= $task['priority'] ?>">
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="due_date">Due Date</label>
-                <input type="date" id="due_date" name="due_date" value="<?= $task['due_date'] ?>" required>
+            <!-- Task Meta Information -->
+            <div class="task-meta">
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Created:</strong> <?= date('M d, Y g:i A', strtotime($task['created_at'])) ?>
+                    </div>
+                    <div class="col-md-6">
+                        <?php if ($task['due_date']): ?>
+                            <strong>Due Date:</strong> <?= date('M d, Y g:i A', strtotime($task['due_date'])) ?>
+                            <?php 
+                            $dueDate = new DateTime($task['due_date']);
+                            $now = new DateTime();
+                            if ($dueDate < $now && $task['status'] !== 'completed'): ?>
+                                <span class="badge bg-danger ms-2">Overdue</span>
+                            <?php elseif ($dueDate->diff($now)->days <= 1 && $task['status'] !== 'completed'): ?>
+                                <span class="badge bg-warning ms-2">Due Soon</span>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="status">Status</label>
-                <select id="status" name="status">
-                    <option value="pending" <?= $task['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
-                    <option value="in_progress" <?= $task['status'] === 'in_progress' ? 'selected' : '' ?>>In Progress</option>
-                    <option value="completed" <?= $task['status'] === 'completed' ? 'selected' : '' ?>>Completed</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea id="description" name="description"><?= htmlspecialchars($task['description']) ?></textarea>
-            </div>
+            <!-- Task Description -->
+            <?php if (!empty($task['description'])): ?>
+                <div class="mb-4">
+                    <h5>Description</h5>
+                    <p class="text-muted"><?= nl2br(htmlspecialchars($task['description'])) ?></p>
+                </div>
+            <?php endif; ?>
 
-            <div class="form-actions">
-                <a href="list.php" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">
-                    <?= $isEditMode ? 'Update Task' : 'Create Task' ?>
-                </button>
+            <!-- Subtasks -->
+            <?php 
+            $subtasks = json_decode($task['subtasks'] ?? '[]', true);
+            if (!empty($subtasks)): ?>
+                <div class="mb-4">
+                    <h5>Subtasks</h5>
+                    <div id="subtasks-list">
+                        <?php foreach ($subtasks as $subtask): ?>
+                            <div class="subtask-item <?= $subtask['completed'] ? 'completed' : '' ?>" data-id="<?= $subtask['id'] ?>">
+                                <input type="checkbox" class="form-check-input" 
+                                       <?= $subtask['completed'] ? 'checked' : '' ?>
+                                       onchange="toggleSubtask('<?= $subtask['id'] ?>')">
+                                <span><?= htmlspecialchars($subtask['text']) ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <!-- Attachments -->
+            <?php 
+            $attachments = json_decode($task['attachments'] ?? '[]', true);
+            if (!empty($attachments)): ?>
+                <div class="mb-4">
+                    <h5>Attachments</h5>
+                    <?php foreach ($attachments as $attachment): ?>
+                        <div class="attachment-item">
+                            <i class="fas fa-file"></i>
+                            <span><?= htmlspecialchars($attachment['name']) ?></span>
+                            <small class="text-muted">(<?= number_format($attachment['size'] / 1024 / 1024, 2) ?> MB)</small>
+                            <a href="<?= BASE_URL . $attachment['path'] ?>" class="btn btn-sm btn-outline-primary ms-auto" target="_blank">
+                                <i class="fas fa-download me-1"></i>Download
+                            </a>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- Shared With -->
+            <?php 
+            $sharedWith = json_decode($task['shared_with'] ?? '[]', true);
+            if (!empty($sharedWith)): ?>
+                <div class="mb-4">
+                    <h5>Shared With</h5>
+                    <?php foreach ($sharedWith as $share): ?>
+                        <span class="shared-user">
+                            <i class="fas fa-user me-1"></i><?= htmlspecialchars($share['email']) ?>
+                        </span>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- Task Actions -->
+            <div class="task-actions">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Quick Actions</h6>
+                        <div class="d-flex gap-2">
+                            <select class="form-select form-select-sm" onchange="updateStatus(this.value)" style="width: auto;">
+                                <option value="">Change Status</option>
+                                <option value="pending" <?= $task['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
+                                <option value="in_progress" <?= $task['status'] === 'in_progress' ? 'selected' : '' ?>>In Progress</option>
+                                <option value="completed" <?= $task['status'] === 'completed' ? 'selected' : '' ?>>Completed</option>
+                            </select>
+                            <select class="form-select form-select-sm" onchange="updatePriority(this.value)" style="width: auto;">
+                                <option value="">Change Priority</option>
+                                <option value="low" <?= $task['priority'] === 'low' ? 'selected' : '' ?>>Low</option>
+                                <option value="medium" <?= $task['priority'] === 'medium' ? 'selected' : '' ?>>Medium</option>
+                                <option value="high" <?= $task['priority'] === 'high' ? 'selected' : '' ?>>High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a href="<?= BASE_URL ?>?page=delete-task&id=<?= $task['task_id'] ?>" 
+                           class="btn btn-outline-danger"
+                           onclick="return confirm('Are you sure you want to delete this task?')">
+                            <i class="fas fa-trash me-1"></i>Delete Task
+                        </a>
+                    </div>
+                </div>
             </div>
-        </form>
+        </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function togglePriorityOptions() {
-            document.getElementById('prioritySelector').classList.toggle('active');
+        function toggleSubtask(subtaskId) {
+            fetch('<?= BASE_URL ?>?page=toggle-subtask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'task_id=<?= $task['task_id'] ?>&subtask_id=' + subtaskId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to update subtask');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
         }
-        
-        function setPriority(priority) {
-            const display = document.querySelector('.priority-display .priority');
-            display.className = 'priority ' + priority;
-            display.textContent = priority.charAt(0).toUpperCase() + priority.slice(1);
-            document.getElementById('priorityInput').value = priority;
-            document.getElementById('prioritySelector').classList.remove('active');
+
+        function updateStatus(status) {
+            if (!status) return;
+            
+            fetch('<?= BASE_URL ?>?page=update-task-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'task_id=<?= $task['task_id'] ?>&status=' + status
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to update status');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
         }
-        
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.priority-selector')) {
-                document.getElementById('prioritySelector').classList.remove('active');
-            }
-        });
+
+        function updatePriority(priority) {
+            if (!priority) return;
+            
+            fetch('<?= BASE_URL ?>?page=update-task-priority', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'task_id=<?= $task['task_id'] ?>&priority=' + priority
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to update priority');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
     </script>
 </body>
 </html>
